@@ -3,6 +3,7 @@ function Solver(onload) {
     setup: [],
     board: [],
     solve: [],
+    add: [],
     reset: []
   };
 
@@ -15,6 +16,9 @@ function Solver(onload) {
       resolve();
     } else if (data.type === 'BOARD_DONE') {
       const resolve = this.resolves.board.shift();
+      resolve();
+    } else if (data.type === 'ADD_DONE') {
+      const resolve = this.resolves.add.shift();
       resolve();
     } else if (data.type === 'SOLVE_DONE') {
       const resolve = this.resolves.solve.shift();
@@ -40,10 +44,17 @@ Solver.prototype.setBoard = function (tiles) {
   });
 };
 
-Solver.prototype.getMove = function (position, value) {
+Solver.prototype.addTile = function (position, value) {
+  return new Promise(resolve => {
+    this.resolves.add.push(resolve);
+    this.worker.postMessage({ type: 'ADD', position, value });
+  });
+};
+
+Solver.prototype.getMove = function () {
   return new Promise(resolve => {
     this.resolves.solve.push(resolve);
-    this.worker.postMessage({ type: 'SOLVE', position, value });
+    this.worker.postMessage({ type: 'SOLVE' });
   });
 };
 

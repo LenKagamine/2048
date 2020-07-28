@@ -19,9 +19,12 @@ Module.onRuntimeInitialized = () => {
 
       Module.setBoard(vec);
       self.postMessage({ type: 'BOARD_DONE' });
-    } else if (data.type === 'SOLVE') {
+    } else if (data.type === 'ADD') {
       const { position, value } = data;
-      const solution = Module.getMove(position, value);
+      Module.addTile(position, value);
+      self.postMessage({ type: 'ADD_DONE' });
+    } else if (data.type === 'SOLVE') {
+      const solution = Module.getMove();
       self.postMessage({ type: 'SOLVE_DONE', solution });
     } else if (data.type === 'RESET') {
       const { seed } = data;

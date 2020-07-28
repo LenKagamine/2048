@@ -284,9 +284,10 @@ float expectimax(Board board, int depth = 3, bool isPlayer = false) {
 }
 
 // Returns direction
-int getBestMove(Board board) {
+int getBestMove(Board& board) {
     // Maximize
-    int best = 0;
+    int bestMove = 0;
+    Board bestBoard = 0;
     float alpha = INF;
 
     // Moves
@@ -296,33 +297,15 @@ int getBestMove(Board board) {
             float result = expectimax(next);
             if (result > alpha) {
                 alpha = result;
-                best = dir;
+                bestMove = dir;
+                bestBoard = next;
             }
         }
     }
 
-    return best;
-}
+    board = bestBoard;
 
-// Returns move
-Board getBestBoard(Board board) {
-    // Maximize
-    Board best = 0;
-    float alpha = INF;
-
-    // Moves
-    for (int dir = 0; dir < 4; dir++) {
-        Board next = slide(board, dir);
-        if (next != board) {
-            float result = expectimax(next);
-            if (result > alpha) {
-                alpha = result;
-                best = next;
-            }
-        }
-    }
-
-    return best;
+    return bestMove;
 }
 
 }  // namespace Game

@@ -138,9 +138,10 @@ HTMLActuator.prototype.clearMessage = function () {
   this.messageContainer.classList.remove('game-over');
 };
 
-HTMLActuator.prototype.toggleSolver = function (enabled) {
-  this.runButton.disabled = !enabled;
-  if (enabled) {
+HTMLActuator.prototype.toggleSolver = function (running) {
+  if (running) {
+    this.runButton.innerHTML = 'Stop';
+  } else {
     this.runButton.innerHTML = 'Autorun';
   }
 };

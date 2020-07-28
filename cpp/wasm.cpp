@@ -27,12 +27,19 @@ void setBoard(std::vector<int> array) {
     }
 
     board = createBoard(b);
+    printBoard(board);
+}
+
+void addTile(int position, int value) {
+    board = setTile(board, position, value);
+    printBoard(board);
 }
 
 // New tile of value at position
-int getMove(int position, int value) {
-    board = setTile(board, position, value);
-    return getBestMove(board);
+int getMove() {
+    auto move = getBestMove(board);
+    printBoard(board);
+    return move;
 }
 
 void reset(int seed) {
@@ -43,6 +50,7 @@ void reset(int seed) {
 EMSCRIPTEN_BINDINGS(game) {
     emscripten::function("setup", &setup);
     emscripten::function("setBoard", &setBoard);
+    emscripten::function("addTile", &addTile);
     emscripten::function("getMove", &getMove);
     emscripten::function("reset", &reset);
     emscripten::register_vector<int>("VecInt");

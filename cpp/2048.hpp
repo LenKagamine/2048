@@ -24,8 +24,7 @@ void initTables();
 void addRandomTile(Board& board);
 Board setTile(Board board, int position, int tile);
 float evaluate(Board board);
-int getBestMove(Board board);
-Board getBestBoard(Board board);
+int getBestMove(Board& board);
 
 }  // namespace Game
 

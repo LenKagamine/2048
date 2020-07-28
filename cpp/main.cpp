@@ -15,7 +15,7 @@ int main() {
     while (board) {
         addRandomTile(board);
         printBoard(board);
-        board = getBestBoard(board);
+        getBestMove(board);
     }
 
     std::cout << "Game Over!" << std::endl;
