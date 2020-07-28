@@ -1,1 +1,6 @@
 .sass-cache/
+build/
+.vscode/
+obj/
+js/solve.js
+js/solve.wasm
