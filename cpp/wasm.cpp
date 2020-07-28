@@ -42,6 +42,7 @@ void reset(int seed) {
 
 EMSCRIPTEN_BINDINGS(game) {
     emscripten::function("setup", &setup);
+    emscripten::function("setBoard", &setBoard);
     emscripten::function("getMove", &getMove);
     emscripten::function("reset", &reset);
     emscripten::register_vector<int>("VecInt");

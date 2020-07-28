@@ -4,7 +4,6 @@ CXXFLAGS = -std=c++20 -Wall -Werror \
 	# -s FILESYSTEM=0 
 export EMCC_DEBUG=1
 
-		# --post-js src/post.js 
 web: obj/wasm.o obj/2048.o
 	$(CXX) $(CXXFLAGS) --bind -o js/solve.js $^ \
 		-s WASM=1 -s ALLOW_MEMORY_GROWTH=1
