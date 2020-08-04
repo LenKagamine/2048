@@ -58,8 +58,11 @@ GameManager.prototype.autorun = function () {
   }
 };
 
-GameManager.prototype.evilTile = function () {
+GameManager.prototype.evilTile = async function () {
   this.evil = !this.evil;
+  if (this.evil) {
+    await this.solver.setBoard(this.grid.values());
+  }
   this.actuator.toggleEvil(this.evil);
 };
 
