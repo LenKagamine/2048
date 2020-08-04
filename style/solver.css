@@ -1,6 +1,4 @@
-.solver-btns {
-}
-#run-button {
+button {
   background: #8f7a66;
   border-radius: 3px;
   padding: 0 20px;
@@ -15,4 +13,32 @@
   font: bold 18px 'Clear Sans';
   outline: none;
   cursor: pointer;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.game-container,
+.game-explanation {
+  margin-top: 20px;
+  transition: background-color 0.2s;
+}
+
+#evil {
+  position: absolute;
+  transform: translate(-60%, -1000%) rotate(-20deg);
+  font-size: 26px;
+  transition: transform 0.2s ease-in-out;
+}
+
+@media screen and (max-width: 520px) {
+  button {
+    font-size: 15px;
+  }
+  #evil {
+    font-size: 20px;
+  }
 }

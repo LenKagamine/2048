@@ -4,3 +4,4 @@ build/
 obj/
 js/solve.js
 js/solve.wasm
+dist/

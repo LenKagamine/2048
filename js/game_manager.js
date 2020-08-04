@@ -48,7 +48,11 @@ GameManager.prototype.autorunLoop = async function () {
 GameManager.prototype.autorun = function () {
   if (this.solverTimeout == null) {
     this.actuator.toggleSolver(true);
-    this.solverTimeout = setTimeout(this.autorunLoop.bind(this), 1);
+    this.solver
+      .setBoard(this.grid.values())
+      .then(
+        () => (this.solverTimeout = setTimeout(this.autorunLoop.bind(this), 1))
+      );
   } else {
     this.stopSolver();
   }

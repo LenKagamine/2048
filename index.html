@@ -33,6 +33,9 @@
   <body>
     <div class="container">
       <div class="heading">
+        <p id="evil">
+          Evil
+        </p>
         <h1 class="title">2048</h1>
         <div class="scores-container">
           <div class="score-container">0</div>
@@ -46,9 +49,9 @@
         </p>
         <button class="restart-button">New Game</button>
       </div>
-      <div class="solver-btns">
+      <div class="buttons">
+        <button id="evil-button">Random Tiles</button>
         <button id="run-button">Loading...</button>
-        <button id="evil-button">Normal</button>
       </div>
 
       <div class="game-container">
@@ -95,11 +98,27 @@
         <strong>arrow keys</strong> to move the tiles. When two tiles with the
         same number touch, they <strong>merge into one!</strong>
       </p>
+      <p>
+        <strong>Random / Evil Tiles:</strong> Unlike random tiles which randomly
+        places a tile after every move, evil tiles will place tiles in the
+        <strong>worst place possible.</strong>
+      </p>
+      <p>
+        <strong>Autoplay:</strong> with autoplay enabled, an AI will
+        <strong>automatically</strong> play the game for you! Try running
+        autoplay with <strong>Evil Tiles</strong> and see how well it plays!
+      </p>
       <hr />
       <p>
         Solver and tile generation by
         <a href="https://michael.kim" target="_blank">Michael Kim.</a>
-        Created by
+        Source code available on
+        <a href="https://github.com/LenKagamine/evil-2048" target="_blank"
+          >Github.</a
+        >
+      </p>
+      <p>
+        Original game created by
         <a href="http://gabrielecirulli.com" target="_blank"
           >Gabriele Cirulli.</a
         >

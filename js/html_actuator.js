@@ -2,8 +2,10 @@ function HTMLActuator() {
   this.tileContainer = document.querySelector('.tile-container');
   this.scoreContainer = document.querySelector('.score-container');
   this.bestContainer = document.querySelector('.best-container');
+  this.gameContainer = document.querySelector('.game-container');
   this.messageContainer = document.querySelector('.game-message');
   this.runButton = document.querySelector('#run-button');
+  this.evilText = document.querySelector('#evil');
   this.evilButton = document.querySelector('#evil-button');
 
   this.score = 0;
@@ -149,8 +151,12 @@ HTMLActuator.prototype.toggleSolver = function (running) {
 
 HTMLActuator.prototype.toggleEvil = function (enabled) {
   if (enabled) {
-    this.evilButton.innerHTML = 'Evil';
+    this.gameContainer.style.background = '#be9d9d';
+    this.evilText.style.transform = 'translate(-60%, 0%) rotate(-20deg)';
+    this.evilButton.innerHTML = 'Evil Tiles';
   } else {
-    this.evilButton.innerHTML = 'Normal';
+    this.gameContainer.style.background = '';
+    this.evilText.style.transform = '';
+    this.evilButton.innerHTML = 'Random Tiles';
   }
 };
