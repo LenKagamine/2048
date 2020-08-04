@@ -30,6 +30,11 @@ void setBoard(std::vector<int> array) {
     printBoard(board);
 }
 
+void move(int direction) {
+    board = slide(board, direction);
+    printBoard(board);
+}
+
 void addTile(int position, int value) {
     board = setTile(board, position, value);
     printBoard(board);
@@ -42,6 +47,13 @@ int getMove() {
     return move;
 }
 
+// Returns + 16 if tile is 4
+int getTile() {
+    auto [tile, pos] = getWorstTile(board);
+    printBoard(board);
+    return tile == 1 ? pos : pos + 16;
+}
+
 void reset(int seed) {
     setSeed(seed);
     board = 0;
@@ -50,8 +62,10 @@ void reset(int seed) {
 EMSCRIPTEN_BINDINGS(game) {
     emscripten::function("setup", &setup);
     emscripten::function("setBoard", &setBoard);
+    emscripten::function("move", &move);
     emscripten::function("addTile", &addTile);
     emscripten::function("getMove", &getMove);
+    emscripten::function("getTile", &getTile);
     emscripten::function("reset", &reset);
     emscripten::register_vector<int>("VecInt");
 }

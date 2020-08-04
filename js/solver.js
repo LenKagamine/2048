@@ -1,66 +1,53 @@
 function Solver(onload) {
-  this.resolves = {
-    setup: [],
-    board: [],
-    solve: [],
-    add: [],
-    reset: []
-  };
+  this.resolves = {};
 
   this.worker = new Worker('js/worker.js');
   this.worker.onmessage = ({ data }) => {
+    console.log(data);
     if (data.type === 'READY') {
       onload();
-    } else if (data.type === 'SETUP_DONE') {
-      const resolve = this.resolves.setup.shift();
-      resolve();
-    } else if (data.type === 'BOARD_DONE') {
-      const resolve = this.resolves.board.shift();
-      resolve();
-    } else if (data.type === 'ADD_DONE') {
-      const resolve = this.resolves.add.shift();
-      resolve();
-    } else if (data.type === 'SOLVE_DONE') {
-      const resolve = this.resolves.solve.shift();
-      resolve(data.solution);
-    } else if (data.type === 'RESET_DONE') {
-      const resolve = this.resolves.reset.shift();
-      resolve();
+    } else if (this.resolves[data.type] != null) {
+      const resolve = this.resolves[data.type].shift();
+      resolve(data.args);
     }
   };
 }
 
-Solver.prototype.setup = function (seed) {
+Solver.prototype.sendMessage = function (type, args = {}) {
   return new Promise(resolve => {
-    this.resolves.setup.push(resolve);
-    this.worker.postMessage({ type: 'SETUP', seed });
+    if (this.resolves[type] == null) {
+      this.resolves[type] = [];
+    }
+
+    this.resolves[type].push(resolve);
+    this.worker.postMessage({ type, ...args });
   });
+};
+
+Solver.prototype.setup = function (seed) {
+  return this.sendMessage('SETUP', { seed });
 };
 
 Solver.prototype.setBoard = function (tiles) {
-  return new Promise(resolve => {
-    this.resolves.board.push(resolve);
-    this.worker.postMessage({ type: 'BOARD', tiles });
-  });
+  return this.sendMessage('BOARD', { tiles });
+};
+
+Solver.prototype.move = function (direction) {
+  return this.sendMessage('MOVE', { direction });
 };
 
 Solver.prototype.addTile = function (position, value) {
-  return new Promise(resolve => {
-    this.resolves.add.push(resolve);
-    this.worker.postMessage({ type: 'ADD', position, value });
-  });
+  return this.sendMessage('ADD', { position, value });
 };
 
 Solver.prototype.getMove = function () {
-  return new Promise(resolve => {
-    this.resolves.solve.push(resolve);
-    this.worker.postMessage({ type: 'SOLVE' });
-  });
+  return this.sendMessage('SOLVE');
+};
+
+Solver.prototype.getTile = function () {
+  return this.sendMessage('TILE');
 };
 
 Solver.prototype.reset = function (seed) {
-  return new Promise(resolve => {
-    this.resolves.reset.push(resolve);
-    this.worker.postMessage({ type: 'RESET', seed });
-  });
+  return this.sendMessage('RESET', { seed });
 };

@@ -6,15 +6,21 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 
   this.startTiles = 2;
 
-  this.inputManager.on('move', this.move.bind(this));
+  this.inputManager.on('move', this.throttleMove.bind(this));
   this.inputManager.on('restart', this.restart.bind(this));
   this.inputManager.on('autorun', this.autorun.bind(this));
+  this.inputManager.on('evilTile', this.evilTile.bind(this));
   this.inputManager.on('keepPlaying', this.keepPlaying.bind(this));
-
-  this.setup();
 
   this.solver = new Solver(this.solverReady.bind(this));
   this.solverTimeout = null;
+
+  this.evil = false;
+
+  this.throttled = false;
+  this.queuedMoves = [];
+
+  this.setup();
 }
 // Setup and set board
 GameManager.prototype.solverReady = function () {
@@ -25,19 +31,17 @@ GameManager.prototype.solverReady = function () {
 };
 
 // Solver tick
-GameManager.prototype.autorunLoop = function () {
-  this.solver.getMove().then(move => {
-    console.log('Solver:', move);
-    const newTile = this.move(move);
+GameManager.prototype.autorunLoop = async function () {
+  const move = await this.solver.getMove();
+  console.log('Solver:', move);
+  const newTile = await this.move(move);
 
-    if (newTile != null) {
-      this.solver.addTile(newTile.position, newTile.value).then(() => {
-        if (this.solverTimeout != null) {
-          this.solverTimeout = setTimeout(this.autorunLoop.bind(this), 1);
-        }
-      });
+  if (newTile != null) {
+    await this.solver.addTile(newTile.position, newTile.value);
+    if (this.solverTimeout != null) {
+      this.solverTimeout = setTimeout(this.autorunLoop.bind(this), 1);
     }
-  });
+  }
 };
 
 // On autorun button click
@@ -48,6 +52,11 @@ GameManager.prototype.autorun = function () {
   } else {
     this.stopSolver();
   }
+};
+
+GameManager.prototype.evilTile = function () {
+  this.evil = !this.evil;
+  this.actuator.toggleEvil(this.evil);
 };
 
 // Stop solver
@@ -132,6 +141,30 @@ GameManager.prototype.addRandomTile = function () {
   }
 };
 
+GameManager.prototype.addEvilTile = async function () {
+  const arg = await this.solver.getTile();
+
+  let value = 2;
+  let position = arg;
+  if (arg >= 16) {
+    position = arg - 16;
+    value = 4;
+  }
+
+  const coord = {
+    x: position % this.grid.size,
+    y: Math.floor(position / this.grid.size)
+  };
+
+  const tile = new Tile(coord, value);
+  this.grid.insertTile(tile);
+
+  return {
+    value: value == 2 ? 1 : 2,
+    position
+  };
+};
+
 // Sends the updated grid to the actuator
 GameManager.prototype.actuate = function () {
   if (this.storageManager.getBestScore() < this.score) {
@@ -182,8 +215,38 @@ GameManager.prototype.moveTile = function (tile, cell) {
   tile.updatePosition(cell);
 };
 
+GameManager.prototype.throttleMove = async function (direction) {
+  if (!this.throttled) {
+    this.throttled = true;
+    const newTile = await this.move(direction);
+    this.throttled = false;
+    return newTile;
+  }
+
+  // if (direction != null) {
+  //   this.queuedMoves.push(direction);
+  // }
+
+  // if (!this.throttled) {
+  //   this.throttled = true;
+  //   const newDir = this.queuedMoves.shift();
+  //   const newTile = await this.move(newDir);
+  //   console.log('Moving ' + newDir);
+  //   this.throttled = false;
+
+  //   if (this.queuedMoves.length > 0) {
+  //     await this.throttleMove();
+  //   }
+
+  //   console.log('Done ' + newDir);
+  //   return newTile;
+  // } else {
+  //   console.log('throttled ' + direction);
+  // }
+};
+
 // Move tiles on the grid in the specified direction
-GameManager.prototype.move = function (direction) {
+GameManager.prototype.move = async function (direction) {
   // 0: up, 1: left, 2: down, 3: right
   var self = this;
 
@@ -240,7 +303,10 @@ GameManager.prototype.move = function (direction) {
   });
 
   if (moved) {
-    const newTile = this.addRandomTile();
+    if (this.solverTimeout == null) {
+      await this.solver.move(direction);
+    }
+    const newTile = this.evil ? await this.addEvilTile() : this.addRandomTile();
 
     if (!this.movesAvailable()) {
       this.over = true; // Game over!

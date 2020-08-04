@@ -6,7 +6,7 @@ Module.onRuntimeInitialized = () => {
     if (data.type === 'SETUP') {
       const { seed } = data;
       Module.setup(seed || 0);
-      self.postMessage({ type: 'SETUP_DONE' });
+      self.postMessage({ type: 'SETUP' });
     } else if (data.type === 'BOARD') {
       const { tiles } = data;
 
@@ -18,18 +18,25 @@ Module.onRuntimeInitialized = () => {
       }
 
       Module.setBoard(vec);
-      self.postMessage({ type: 'BOARD_DONE' });
+      self.postMessage({ type: 'BOARD' });
+    } else if (data.type === 'MOVE') {
+      const { direction } = data;
+      Module.move(direction);
+      self.postMessage({ type: 'MOVE' });
     } else if (data.type === 'ADD') {
       const { position, value } = data;
       Module.addTile(position, value);
-      self.postMessage({ type: 'ADD_DONE' });
+      self.postMessage({ type: 'ADD' });
     } else if (data.type === 'SOLVE') {
       const solution = Module.getMove();
-      self.postMessage({ type: 'SOLVE_DONE', solution });
+      self.postMessage({ type: 'SOLVE', args: solution });
+    } else if (data.type === 'TILE') {
+      const tile = Module.getTile();
+      self.postMessage({ type: 'TILE', args: tile });
     } else if (data.type === 'RESET') {
       const { seed } = data;
       Module.reset(seed || 0);
-      self.postMessage({ type: 'RESET_DONE' });
+      self.postMessage({ type: 'RESET' });
     }
   };
 

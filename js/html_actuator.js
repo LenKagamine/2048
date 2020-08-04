@@ -4,6 +4,7 @@ function HTMLActuator() {
   this.bestContainer = document.querySelector('.best-container');
   this.messageContainer = document.querySelector('.game-message');
   this.runButton = document.querySelector('#run-button');
+  this.evilButton = document.querySelector('#evil-button');
 
   this.score = 0;
 }
@@ -143,5 +144,13 @@ HTMLActuator.prototype.toggleSolver = function (running) {
     this.runButton.innerHTML = 'Stop';
   } else {
     this.runButton.innerHTML = 'Autorun';
+  }
+};
+
+HTMLActuator.prototype.toggleEvil = function (enabled) {
+  if (enabled) {
+    this.evilButton.innerHTML = 'Evil';
+  } else {
+    this.evilButton.innerHTML = 'Normal';
   }
 };

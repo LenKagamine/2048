@@ -25,7 +25,7 @@ std::array<Board, 65536> downSlides{};
 std::array<float, 65536> heuristic{};
 
 // Infinity for expectimax
-constexpr int INF = -1E5;
+constexpr int INF = 1E8;
 
 // Compress board state into 64-bit int
 Board createBoard(std::array<int, BOARD_LEN> board) {
@@ -231,7 +231,7 @@ float evaluate(Board board) {
     return rows + cols;
 }
 
-inline Board slide(Board board, int direction) {
+Board slide(Board board, int direction) {
     if (direction == 0) return slideUp(board);
     if (direction == 1) return slideLeft(board);
     if (direction == 2) return slideDown(board);
@@ -247,7 +247,7 @@ float expectimax(Board board, int depth = 3, bool isPlayer = false) {
 
     if (isPlayer) {
         // Maximize
-        float alpha = INF;
+        float alpha = -INF;
 
         // Moves
         for (int dir = 0; dir < 4; dir++) {
@@ -288,14 +288,14 @@ int getBestMove(Board& board) {
     // Maximize
     int bestMove = 0;
     Board bestBoard = 0;
-    float alpha = INF;
+    float alpha = -INF;
 
     // Moves
     for (int dir = 0; dir < 4; dir++) {
         Board next = slide(board, dir);
         if (next != board) {
             float result = expectimax(next);
-            if (result > alpha) {
+            if (result >= alpha) {
                 alpha = result;
                 bestMove = dir;
                 bestBoard = next;
@@ -306,6 +306,102 @@ int getBestMove(Board& board) {
     board = bestBoard;
 
     return bestMove;
+}
+
+// Worst tile generation assuming best movement
+float minimax(Board board, int depth = 3, float alpha = -INF, float beta = INF,
+              bool isPlayer = true) {
+    if (depth == 0) {
+        // Leaf node
+        return evaluate(board);
+    }
+
+    if (isPlayer) {
+        // Maximize
+        float result = -INF;
+
+        // Moves
+        for (int dir = 0; dir < 4; dir++) {
+            Board next = slide(board, dir);
+            if (next != board) {
+                result = std::max(result,
+                                  minimax(next, depth - 1, alpha, beta, false));
+                alpha = std::max(alpha, result);
+
+                if (alpha > beta) {
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    // Chance
+    float result = INF;
+    Board temp = board;
+
+    for (int i = 0; i < BOARD_LEN; i++) {
+        int tile = temp & 0xF;
+        if (tile == 0) {
+            // Place 2
+            Board b2 = setTile(board, i, 1);
+            float r2 = minimax(b2, depth, alpha, beta, true);
+            result = std::min(result, r2);
+
+            // Place 4
+            Board b4 = setTile(board, i, 2);
+            float r4 = minimax(b4, depth, alpha, beta, true);
+            result = std::min(result, r4);
+
+            beta = std::min(beta, result);
+            if (beta <= alpha) {
+                break;
+            }
+        }
+        temp >>= 4;
+    }
+
+    return result;
+}
+
+// Returns direction
+std::pair<int, int> getWorstTile(Board& board) {
+    // Maximize
+    int worstTile = 0;
+    int worstPos = 0;
+    Board worstBoard = 0;
+    float result = INF;
+
+    Board temp = board;
+    for (int i = 0; i < BOARD_LEN; i++) {
+        int tile = temp & 0xF;
+        if (tile == 0) {
+            // Place 2
+            Board b2 = setTile(board, i, 1);
+            float r2 = minimax(b2);
+            if (r2 < result) {
+                result = r2;
+                worstTile = 1;
+                worstPos = i;
+                worstBoard = b2;
+            }
+
+            // Place 4
+            Board b4 = setTile(board, i, 2);
+            float r4 = minimax(b4);
+            if (r4 < result) {
+                result = r4;
+                worstTile = 2;
+                worstPos = i;
+                worstBoard = b4;
+            }
+        }
+        temp >>= 4;
+    }
+
+    board = worstBoard;
+    return {worstTile, worstPos};
 }
 
 }  // namespace Game

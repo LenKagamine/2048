@@ -24,7 +24,9 @@ void initTables();
 void addRandomTile(Board& board);
 Board setTile(Board board, int position, int tile);
 float evaluate(Board board);
+Board slide(Board board, int direction);
 int getBestMove(Board& board);
+std::pair<int, int> getWorstTile(Board& board);
 
 }  // namespace Game
 

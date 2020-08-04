@@ -22,12 +22,12 @@ KeyboardInputManager.prototype.on = function (event, callback) {
   this.events[event].push(callback);
 };
 
-KeyboardInputManager.prototype.emit = function (event, data) {
+KeyboardInputManager.prototype.emit = async function (event, data) {
   var callbacks = this.events[event];
   if (callbacks) {
-    callbacks.forEach(function (callback) {
-      callback(data);
-    });
+    for (const callback of callbacks) {
+      await callback(data);
+    }
   }
 };
 
@@ -72,6 +72,7 @@ KeyboardInputManager.prototype.listen = function () {
   this.bindButtonPress('.retry-button', this.restart);
   this.bindButtonPress('.restart-button', this.restart);
   this.bindButtonPress('#run-button', this.autorun);
+  this.bindButtonPress('#evil-button', this.evilTile);
   this.bindButtonPress('.keep-playing-button', this.keepPlaying);
 
   // Respond to swipe events
@@ -140,6 +141,11 @@ KeyboardInputManager.prototype.restart = function (event) {
 KeyboardInputManager.prototype.autorun = function (event) {
   event.preventDefault();
   this.emit('autorun');
+};
+
+KeyboardInputManager.prototype.evilTile = function (event) {
+  event.preventDefault();
+  this.emit('evilTile');
 };
 
 KeyboardInputManager.prototype.keepPlaying = function (event) {
