@@ -20,7 +20,8 @@ Since only 2 and 4 tiles can spawn, the theoretically largest tile possible is 1
 ```
 
 However, the RNG must be favourable in order for this to occur as specific tiles are required to reach this state. For example, the last tile must be a 4. When the game is placing tiles adversarially, it will be impossible to reach this state.
-</detals>
+
+</details>
 
 ## Autoplay
 
