@@ -33,7 +33,6 @@ GameManager.prototype.solverReady = function () {
 // Solver tick
 GameManager.prototype.autorunLoop = async function () {
   const move = await this.solver.getMove();
-  console.log('Solver:', move);
   const newTile = await this.move(move);
 
   if (newTile != null) {

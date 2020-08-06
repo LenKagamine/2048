@@ -27,30 +27,23 @@ void setBoard(std::vector<int> array) {
     }
 
     board = createBoard(b);
-    printBoard(board);
 }
 
-void move(int direction) {
-    board = slide(board, direction);
-    printBoard(board);
-}
+void move(int direction) { board = slide(board, direction); }
 
 void addTile(int position, int value) {
     board = setTile(board, position, value);
-    printBoard(board);
 }
 
 // New tile of value at position
 int getMove() {
     auto move = getBestMove(board);
-    printBoard(board);
     return move;
 }
 
 // Returns + 16 if tile is 4
 int getTile() {
     auto [tile, pos] = getWorstTile(board);
-    printBoard(board);
     return tile == 1 ? pos : pos + 16;
 }
 

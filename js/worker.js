@@ -2,7 +2,6 @@ const Module = {};
 
 Module.onRuntimeInitialized = () => {
   self.onmessage = ({ data }) => {
-    console.log(data);
     if (data.type === 'SETUP') {
       const { seed } = data;
       Module.setup(seed || 0);

@@ -3,7 +3,6 @@ function Solver(onload) {
 
   this.worker = new Worker('js/worker.js');
   this.worker.onmessage = ({ data }) => {
-    console.log(data);
     if (data.type === 'READY') {
       onload();
     } else if (this.resolves[data.type] != null) {
