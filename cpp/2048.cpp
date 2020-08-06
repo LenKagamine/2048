@@ -27,6 +27,11 @@ std::array<float, 65536> heuristic{};
 // Infinity for expectimax
 constexpr int INF = 1E8;
 
+constexpr float OPEN_WEIGHT = 1.0;
+constexpr float SMOOTH_WEIGHT = 5.0;
+constexpr float MONO_WEIGHT = 5.0;
+constexpr float MAX_WEIGHT = 0.1;
+
 // Compress board state into 64-bit int
 Board createBoard(std::array<int, BOARD_LEN> board) {
     Board b = 0;
@@ -112,7 +117,11 @@ float calculateHeuristic(const std::array<int, ROW_LEN>& row, Row s) {
     }
     int monotonicity = std::max(leftMon, rightMon);
 
-    return openness + smoothness + monotonicity;
+    // Maximum
+    int maxTile = *std::max_element(row.begin(), row.end());
+
+    return OPEN_WEIGHT * openness + SMOOTH_WEIGHT * smoothness +
+           MONO_WEIGHT * monotonicity + MAX_WEIGHT * maxTile;
 }
 
 // Init
@@ -283,31 +292,6 @@ float expectimax(Board board, int depth = 3, bool isPlayer = false) {
     return alpha / numEmpty;
 }
 
-// Returns direction
-int getBestMove(Board& board) {
-    // Maximize
-    int bestMove = 0;
-    Board bestBoard = 0;
-    float alpha = -INF;
-
-    // Moves
-    for (int dir = 0; dir < 4; dir++) {
-        Board next = slide(board, dir);
-        if (next != board) {
-            float result = expectimax(next);
-            if (result >= alpha) {
-                alpha = result;
-                bestMove = dir;
-                bestBoard = next;
-            }
-        }
-    }
-
-    board = bestBoard;
-
-    return bestMove;
-}
-
 // Worst tile generation assuming best movement
 float minimax(Board board, int depth = 3, float alpha = -INF, float beta = INF,
               bool isPlayer = true) {
@@ -363,6 +347,55 @@ float minimax(Board board, int depth = 3, float alpha = -INF, float beta = INF,
     }
 
     return result;
+}
+
+int getSearchDepth(Board board) {
+    int numEmpty = 16;
+    while (board) {
+        int tile = board & 0xF;
+        if (tile > 0) {
+            numEmpty--;
+        }
+        board >>= 4;
+    }
+
+    if (numEmpty > 8) {
+        return 2;
+    }
+    if (numEmpty > 4) {
+        return 3;
+    }
+    if (numEmpty > 2) {
+        return 4;
+    }
+    return 5;
+}
+
+// Returns direction
+int getBestMove(Board& board) {
+    // Maximize
+    int bestMove = 0;
+    Board bestBoard = 0;
+    float alpha = -INF;
+
+    // Moves
+    for (int dir = 0; dir < 4; dir++) {
+        Board next = slide(board, dir);
+        if (next != board) {
+            int depth = getSearchDepth(next);
+            float result = expectimax(next, depth);
+            // float result = minimax(next, 5, -INF, INF, false);
+            if (result >= alpha) {
+                alpha = result;
+                bestMove = dir;
+                bestBoard = next;
+            }
+        }
+    }
+
+    board = bestBoard;
+
+    return bestMove;
 }
 
 // Returns direction
